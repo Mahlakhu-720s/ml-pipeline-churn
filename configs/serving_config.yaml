@@ -1,0 +1,49 @@
+# configs/serving_config.yaml
+# ----------------------------
+# Configuration for the FastAPI serving layer and monitoring thresholds.
+
+model:
+  name: "churn-predictor"
+  stage: "Production"           # MLflow Registry stage to load
+  fallback_stage: "Staging"     # Load if Production not available
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 2
+  max_request_size_kb: 100
+  request_timeout_seconds: 10
+
+auth:
+  algorithm: "HS256"
+  token_expiry_seconds: 86400   # 24 hours
+
+risk_tiers:
+  low_threshold: 0.30           # P(churn) < 0.30 → LOW
+  high_threshold: 0.60          # P(churn) >= 0.60 → HIGH
+  # Between low and high → MEDIUM
+
+monitoring:
+  # PSI thresholds (Population Stability Index)
+  psi_moderate_threshold: 0.10
+  psi_severe_threshold: 0.20   # Triggers retraining
+
+  # KS test p-value threshold
+  ks_p_value_threshold: 0.05   # Below this → statistically significant drift
+
+  # Bias audit thresholds
+  demographic_parity_gap_warning: 0.10
+  auc_gap_warning: 0.05
+
+  # Monitored numeric features
+  drift_features:
+    - tenure
+    - MonthlyCharges
+    - TotalCharges
+    - num_products
+
+  # Sensitive attributes for bias audit
+  sensitive_attributes:
+    - gender
+    - SeniorCitizen
+    - Partner

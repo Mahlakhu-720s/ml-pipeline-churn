@@ -1,0 +1,73 @@
+# configs/feature_config.yaml
+# ----------------------------
+# Single source of truth for feature definitions.
+# Imported by src/features/engineering.py and src/serving/api.py.
+
+raw_features:
+  numeric:
+    - name: tenure
+      dtype: integer
+      range: [0, 72]
+      description: "Months the customer has been with the company"
+    - name: MonthlyCharges
+      dtype: float
+      range: [0, 200]
+      description: "Current monthly bill amount"
+    - name: TotalCharges
+      dtype: float
+      range: [0, 15000]
+      description: "Cumulative charges over the customer lifetime"
+
+  categorical:
+    - name: gender
+      values: [Male, Female]
+    - name: InternetService
+      values: [DSL, "Fiber optic", "No"]
+    - name: Contract
+      values: ["Month-to-month", "One year", "Two year"]
+    - name: PaymentMethod
+      values:
+        - "Electronic check"
+        - "Mailed check"
+        - "Bank transfer (automatic)"
+        - "Credit card (automatic)"
+    - name: Partner
+      values: [Yes, No]
+    - name: Dependents
+      values: [Yes, No]
+    - name: PaperlessBilling
+      values: [Yes, No]
+
+  add_on_services:
+    # Used to compute num_products (count of "Yes" responses)
+    - PhoneService
+    - MultipleLines
+    - OnlineSecurity
+    - OnlineBackup
+    - DeviceProtection
+    - TechSupport
+    - StreamingTV
+    - StreamingMovies
+
+engineered_features:
+  - name: num_products
+    type: integer
+    description: "Count of subscribed add-on services (0–8)"
+    formula: "sum(col == 'Yes' for col in add_on_services)"
+
+  - name: charge_per_tenure
+    type: float
+    description: "Monthly charges divided by (tenure + 1). High for new expensive customers."
+    formula: "MonthlyCharges / (tenure + 1)"
+
+  - name: contract_months
+    type: integer
+    description: "Ordinal encoding: Month-to-month=1, One year=12, Two year=24"
+    formula: "map(Contract, {'Month-to-month': 1, 'One year': 12, 'Two year': 24})"
+
+target:
+  column: Churn
+  encoding: {Yes: 1, No: 0}
+  positive_class: 1
+  positive_class_label: "Churn"
+  negative_class_label: "No Churn"

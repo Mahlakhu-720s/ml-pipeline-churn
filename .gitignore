@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+.env
+
+# Data (never commit raw or processed data)
+data/raw/
+data/delta/
+data/reference/
+data/production/
+*.csv
+*.parquet
+
+# MLflow
+mlflow.db
+mlruns/
+mlartifacts/
+
+# Evaluation outputs
+evaluation_outputs/
+monitoring/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+*.pem
+*.key
+secrets.yaml

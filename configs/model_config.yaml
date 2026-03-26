@@ -1,0 +1,41 @@
+# configs/model_config.yaml
+# --------------------------
+# Hyperparameter definitions for all candidate models.
+# These values are logged to MLflow at training time.
+
+training:
+  n_folds: 5
+  test_size: 0.20
+  random_state: 42
+  # Minimum AUC-ROC required for any model to be promoted to Staging
+  min_auc_gate: 0.80
+  # Minimum AUC-ROC improvement over current Production model to trigger promotion
+  min_improvement_gate: 0.01
+
+logistic_regression:
+  C: 1.0
+  penalty: "l2"
+  solver: "lbfgs"
+  max_iter: 1000
+  class_weight: "balanced"
+
+random_forest:
+  n_estimators: 300
+  max_depth: 8
+  min_samples_split: 10
+  min_samples_leaf: 4
+  class_weight: "balanced"
+  n_jobs: -1
+
+xgboost:
+  n_estimators: 400
+  max_depth: 5
+  learning_rate: 0.05
+  subsample: 0.80
+  colsample_bytree: 0.80
+  # scale_pos_weight compensates for class imbalance: (n_negative / n_positive)
+  # Approx 73.5 / 26.5 ≈ 2.77 → rounded to 3
+  scale_pos_weight: 3
+  eval_metric: "logloss"
+  random_state: 42
+  n_jobs: -1
