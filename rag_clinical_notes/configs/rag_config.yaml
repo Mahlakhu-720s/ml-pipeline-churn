@@ -1,0 +1,67 @@
+ingestion:
+  data_dir: "rag_clinical_notes/data/sample_notes"
+  supported_extensions: [".pdf"]
+
+chunking:
+  strategy: "fixed"           # "fixed" | "semantic"
+  fixed:
+    chunk_size: 512
+    chunk_overlap: 50
+  semantic:
+    model: "sentence-transformers/all-MiniLM-L6-v2"
+    breakpoint_threshold_type: "percentile"
+    breakpoint_threshold_amount: 95
+
+embeddings:
+  model: "sentence-transformers/all-MiniLM-L6-v2"
+  batch_size: 32
+  normalize: true
+
+vectorstore:
+  provider: "chromadb"
+  persist_directory: "rag_clinical_notes/chroma_db"
+  collection_name: "clinical_notes"
+  distance_metric: "cosine"
+
+retrieval:
+  top_k_initial: 20
+  top_k_final: 5
+  reranker_model: "cross-encoder/ms-marco-MiniLM-L-6-v2"
+
+llm:
+  provider: "ollama"
+  model: "llama3"
+  base_url: "http://localhost:11434"
+  max_tokens: 1024
+  temperature: 0.0
+
+guardrails:
+  pii_detection: true
+  presidio_entities:
+    - PERSON
+    - DATE_TIME
+    - LOCATION
+    - PHONE_NUMBER
+    - EMAIL_ADDRESS
+    - US_SSN
+    - MEDICAL_LICENSE
+  pii_replacement: "[REDACTED]"
+  hallucination_check: true
+  min_overlap_ratio: 0.3
+
+evaluation:
+  test_set_path: "rag_clinical_notes/data/eval_qa_pairs.json"
+  ragas_metrics:
+    - faithfulness
+    - answer_relevancy
+    - context_precision
+    - context_recall
+  mlflow_experiment: "rag_clinical_notes_eval"
+
+serving:
+  host: "0.0.0.0"
+  port: 8001
+
+mlflow:
+  tracking_uri: "sqlite:///mlruns/mlflow.db"
+  experiment_name: "rag_clinical_notes"
